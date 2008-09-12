@@ -28,7 +28,7 @@ mp4_frame_mapping = {
         'tmpo':     'bpm',
         '\xa9grp':  'grouping',
         '\xa9day':  'date',         # TODO: figure this out
-        'aART':     'artist',
+        'aART':     'album artist',
         'cpil':     'compilation',  # boolean
         'apID':     'apple id',
         #'covr':     'album cover', TODO
