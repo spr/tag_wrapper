@@ -10,7 +10,7 @@ Album:          %(album)s
 Track:          %(tracknumber)s
 Disc:           %(discnumber)s
 Genre:          %(genre)s
-Year:           %(date)s
+Date:           %(date)s
 Composer:       %(composer)s
 """
 

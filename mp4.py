@@ -16,6 +16,7 @@
 
 from tag_wrapper import dictionary_reverse, Tag, TagException
 from mutagen.mp4 import MP4
+import re
 
 mp4_frame_mapping = {
         'trkn':     'tracknumber',  # tuple (x, total)
@@ -49,18 +50,29 @@ class MP4Tag(Tag):
             return norm_frame_mapping[key]
         else:
             return key
+
+    def _make_date_from_year(self, year):
+        return "%s-01-01T07:00:00Z" % year
+
+    def _get_year_from_date(self, date):
+        return re.match(r'(\d{4})-', date).group(1)
     
     def __getitem__(self, key):
         """__getitem__: artist = tag['artist']
         If a tag has multiple values, we return a list
         """
         mp4_tag = self._tag[self._get_mp4_key(key)]
+        if key == 'tracknumber' or key == 'discnumber':
+            return ['/'.join(map(unicode, mp4_tag[0])),]
+        elif key == 'date':
+            return map(self._get_year_from_date, mp4_tag)
         return mp4_tag
 
     def __setitem__(self, key, value):
-        # date == year in most cases
-        if key == 'year':
-            key = 'date'
+        if key == 'tracknumber' or key == 'discnumber':
+            value = value.split('/')
+        elif key == 'date':
+            value = self._make_date_from_year(value)
         
         self._tag[self._get_mp4_key(key)] = value
 
