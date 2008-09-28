@@ -84,8 +84,10 @@ class ID3Tag(Tag):
         """ __getitem__: artist = tag['artist']
         Returns a list of values
         """
-        id3_tag = self._tag[self._get_new_key(key)]
-        return id3_tag.text
+        id3_tag = self._tag[self._get_new_key(key)].text
+        if type(id3_tag) != list:
+            id3_tag = [id3_tag]
+        return map(unicode, id3_tag)
 
     def __setitem__(self, key, value):
         """__setitem__: tag['artist'] = "Guster"

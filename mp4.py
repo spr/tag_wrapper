@@ -59,13 +59,14 @@ class MP4Tag(Tag):
     
     def __getitem__(self, key):
         """__getitem__: artist = tag['artist']
-        If a tag has multiple values, we return a list
         """
         mp4_tag = self._tag[self._get_mp4_key(key)]
         if key == 'tracknumber' or key == 'discnumber':
             return ['/'.join(map(unicode, mp4_tag[0])),]
         elif key == 'date':
             return map(self._get_year_from_date, mp4_tag)
+        if type(mp4_tag) != list:
+            mp4_tag = [mp4_tag]
         return mp4_tag
 
     def __setitem__(self, key, value):

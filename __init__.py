@@ -29,7 +29,10 @@ class Tag(object):
         self._tag.save()
 
     def __getitem__(self, key):
-        return self._tag[key]
+        if type(self._tag[key]) != list:
+            return [self._tag[key]]
+        else:
+            return self._tag[key]
 
     def __setitem__(self, key, value):
         self._tag[key] = value
