@@ -24,15 +24,15 @@ mp4_frame_mapping = {
         'disk':     'discnumber',   # tuple (x, total)
         '\xa9cmt':  'comment',
         '\xa9wrt':  'composer',
-        'purd':     'purchased',    # TODO: figure this out
+        'purd':     'purchased',
         '\xa9alb':  'album',
         'tmpo':     'bpm',
         '\xa9grp':  'grouping',
-        '\xa9day':  'date',         # TODO: figure this out
+        '\xa9day':  'date',
         'aART':     'album artist',
         'cpil':     'compilation',  # boolean
         'apID':     'apple id',
-        #'covr':     'album cover', TODO
+        'covr':     'album cover', 
         'cprt':     'copyright',
         '\xa9ART':  'artist',
         '\xa9nam':  'title',
@@ -74,6 +74,8 @@ class MP4Tag(Tag):
             value = value.split('/')
         elif key == 'date':
             value = self._make_date_from_year(value)
+        elif key == 'compilation' or key == 'gapless':
+            value = bool(value)
         
         self._tag[self._get_mp4_key(key)] = value
 
@@ -81,7 +83,7 @@ class MP4Tag(Tag):
         del(self._tag[self._get_mp4_key(key)])
 
     def __contains__(self, key):
-        return (self._get_mp4_key(item) in self._tag)
+        return (self._get_mp4_key(key) in self._tag)
 
     def keys(self):
         keys = []

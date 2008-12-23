@@ -26,7 +26,7 @@ encodings = {
 }
 
 id3_frame_mapping = {
-        #'APIC': 'cover image', # Support for images to come
+        'APIC:': 'album cover',
         'TALB': 'album',
         'TBPM': 'bpm',
         'TCOM': 'composer',
@@ -84,7 +84,10 @@ class ID3Tag(Tag):
         """ __getitem__: artist = tag['artist']
         Returns a list of values
         """
-        id3_tag = self._tag[self._get_new_key(key)].text
+        nkey = self._get_new_key(key)
+        if key == 'album cover':
+            return [self._tag[nkey].data]
+        id3_tag = self._tag[nkey].text
         if type(id3_tag) != list:
             id3_tag = [id3_tag]
         return map(unicode, id3_tag)
@@ -97,10 +100,12 @@ class ID3Tag(Tag):
         # Tag is a supported frame
         nkey = self._get_new_key(key)
         if key in norm_frame_mapping:
-            # FYI: Adding support for non-text frames will require more
-            # logic here.
             tag_class = getattr(id3, nkey)
-            self._tag[nkey] = tag_class(encoding=self.encoding, text=value)
+            if key == 'album cover':
+                self._tag[nkey] = tag_class(encoding=self.encoding, type=3,
+                        data=value)
+            else:
+                self._tag[nkey] = tag_class(encoding=self.encoding, text=value)
         # Tag is a comment
         else:
             if key == 'comment' or key == 'description':
