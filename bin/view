@@ -14,6 +14,26 @@ Date:           %(date)s
 Composer:       %(composer)s
 """
 
+def generate_string(tag):
+    parts = []
+    if 'artist' in tag:
+        parts.append('Artist:\t\t%s' % tag['artist'])
+    if 'album artist' in tag:
+        parts.append('Album Artist:\t\t%s' % tag['album artist'])
+    if 'album' in tag:
+        parts.append('Album:\t\t%s' % tag['album'])
+    if 'tracknumber' in tag:
+        parts.append('Track:\t\t%s' % tag['tracknumber'])
+    if 'discnumber' in tag:
+        parts.append('Disc:\t\t%s' % tag['discnumber'])
+    if 'genre' in tag:
+        parts.append('Genre:\t\t%s' % tag['genre'])
+    if 'date' in tag:
+        parts.append('Date:\t\t%s' % tag['date'])
+    if 'composer' in tag:
+        parts.append('Composer:\t\t%s' % tag['composer'])
+    return '\n'.join(parts)
+
 def main(argv=sys.argv):
     if len(argv) < 2:
         print "Needs at least one filename"
@@ -21,8 +41,8 @@ def main(argv=sys.argv):
 
     for file in argv[1:]:
         file_tag = tag(file)
-        print "%s" % file_tag.filename
-        print tags_string % file_tag
+        print "%s:" % file_tag.filename
+        print generate_string(file_tag)
 
     return 0
 

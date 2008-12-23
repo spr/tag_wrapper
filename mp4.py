@@ -80,8 +80,8 @@ class MP4Tag(Tag):
     def __delitem__(self, key):
         del(self._tag[self._get_mp4_key(key)])
 
-    def __contains__(self, item):
-        return (self._get_mp4_key(key) in self._tag)
+    def __contains__(self, key):
+        return (self._get_mp4_key(item) in self._tag)
 
     def keys(self):
         keys = []
