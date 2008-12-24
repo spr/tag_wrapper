@@ -5,26 +5,36 @@ from tag_wrapper import tag
 
 def generate_string(tag):
     parts = []
+    if 'title' in tag:
+        parts.append('Title:\t\t%s' % tag['title'])
     if 'artist' in tag:
         parts.append('Artist:\t\t%s' % tag['artist'])
     if 'album artist' in tag:
         parts.append('Album Artist:\t%s' % tag['album artist'])
     if 'album' in tag:
         parts.append('Album:\t\t%s' % tag['album'])
-    if 'tracknumber' in tag:
-        parts.append('Track:\t\t%s' % tag['tracknumber'])
-    if 'discnumber' in tag:
-        parts.append('Disc:\t\t%s' % tag['discnumber'])
+    if 'composer' in tag:
+        parts.append('Composer:\t%s' % tag['composer'])
     if 'genre' in tag:
         parts.append('Genre:\t\t%s' % tag['genre'])
     if 'date' in tag:
         parts.append('Date:\t\t%s' % tag['date'])
-    if 'composer' in tag:
-        parts.append('Composer:\t%s' % tag['composer'])
+    if 'tracknumber' in tag:
+        parts.append('Track:\t\t%s' % tag['tracknumber'])
+    if 'discnumber' in tag:
+        parts.append('Disc:\t\t%s' % tag['discnumber'])
+    if 'bpm' in tag:
+        parts.append('BPM:\t\t%s' % tag['bpm'])
     if 'gapless' in tag:
         parts.append('Gapless:\t%s' % tag['gapless'])
     if 'compilation' in tag:
         parts.append('Compilation:\t%s' % tag['compilation'])
+    if 'album sort order' in tag:
+        parts.append('Album Sort Order:\t%s' % tag['album sort order'])
+    if 'title sort order' in tag:
+        parts.append('Title Sort Order:\t%s' % tag['title sort order'])
+    if 'artist sort order' in tag:
+        parts.append('Artist Sort Order:\t%s' % tag['artist sort order'])
     if 'album cover' in tag:
         fd, filename = tempfile.mkstemp(suffix='.png')
         ffd = os.fdopen(fd, 'w')

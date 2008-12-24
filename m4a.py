@@ -18,34 +18,44 @@ from tag_wrapper import dictionary_reverse, Tag, TagException
 from mutagen.mp4 import MP4
 import re
 
-mp4_frame_mapping = {
-        'trkn':     'tracknumber',  # tuple (x, total)
-        'tvsh':     'show',
-        'disk':     'discnumber',   # tuple (x, total)
-        '\xa9cmt':  'comment',
-        '\xa9wrt':  'composer',
-        'purd':     'purchased',
-        '\xa9alb':  'album',
-        'tmpo':     'bpm',
-        '\xa9grp':  'grouping',
-        '\xa9day':  'date',
-        'aART':     'album artist',
-        'cpil':     'compilation',  # boolean
-        'apID':     'apple id',
+m4a_frame_mapping = {
+        # Art
         'covr':     'album cover', 
-        'cprt':     'copyright',
-        '\xa9ART':  'artist',
+        # Main information
         '\xa9nam':  'title',
-        'pgap':     'gapless',      #  boolean
+        '\xa9ART':  'artist',
+        'aART':     'album artist',
+        '\xa9alb':  'album',
+        '\xa9wrt':  'composer',
         '\xa9gen':  'genre',
+        '\xa9day':  'date',
+        'trkn':     'tracknumber',  # tuple (x, total)
+        'disk':     'discnumber',   # tuple (x, total)
+        'tmpo':     'bpm',
+        # iTunes bonus stuff
+        'cpil':     'compilation',  # boolean
+        'pgap':     'gapless',      #  boolean
+        '\xa9grp':  'grouping',
+        # Sorting
+        'soal':     'album sort order',
+        'sonm':     'title sort order',
+        'soaa':     'album artist sort order',
+        'soar':     'artist sort order',
+        'soco':     'composer sort order',
+        # Miscellaneous
+        '\xa9cmt':  'comment',
+        'cprt':     'copyright',
+        'tvsh':     'show',
+        'purd':     'purchased',
+        'apID':     'apple id',
 }
 
-norm_frame_mapping = dictionary_reverse(mp4_frame_mapping)
+norm_frame_mapping = dictionary_reverse(m4a_frame_mapping)
 
-class MP4Tag(Tag):
-    """The Tag implementation for MP4 (iTunes) tags"""
+class M4ATag(Tag):
+    """The Tag implementation for m4a (iTunes) tags"""
 
-    def _get_mp4_key(self, key):
+    def _get_real_key(self, key):
         if key in norm_frame_mapping:
             return norm_frame_mapping[key]
         else:
@@ -59,37 +69,40 @@ class MP4Tag(Tag):
     
     def __getitem__(self, key):
         """__getitem__: artist = tag['artist']
+        Returns a list of values
         """
-        mp4_tag = self._tag[self._get_mp4_key(key)]
+        value = self._tag[self._get_real_key(key)]
         if key == 'tracknumber' or key == 'discnumber':
-            return ['/'.join(map(unicode, mp4_tag[0])),]
+            return [u'/'.join(map(unicode, v)) for v in value]
         elif key == 'date':
-            return map(self._get_year_from_date, mp4_tag)
-        if type(mp4_tag) != list:
-            mp4_tag = [mp4_tag]
-        return mp4_tag
+            return map(self._get_year_from_date, value)
+        if type(value) != list:
+            value = [value]
+        return map(unicode, value)
 
     def __setitem__(self, key, value):
+        if type(value) != list:
+            value = [value]
         if key == 'tracknumber' or key == 'discnumber':
-            value = value.split('/')
+            value = [v.split('/') for v in value]
         elif key == 'date':
-            value = self._make_date_from_year(value)
+            value = [self._make_date_from_year(v) for v in value]
         elif key == 'compilation' or key == 'gapless':
-            value = bool(value)
+            value = [bool(v) for v in value]
         
-        self._tag[self._get_mp4_key(key)] = value
+        self._tag[self._get_real_key(key)] = value
 
     def __delitem__(self, key):
-        del(self._tag[self._get_mp4_key(key)])
+        del(self._tag[self._get_real_key(key)])
 
     def __contains__(self, key):
-        return (self._get_mp4_key(key) in self._tag)
+        return (self._get_real_key(key) in self._tag)
 
     def keys(self):
         keys = []
-        for mp4_key in self._tag.keys():
-            if mp4_key in mp4_frame_mapping:
-                keys.append(mp4_frame_mapping[mp4_key])
+        for m4a_key in self._tag.keys():
+            if m4a_key in m4a_frame_mapping:
+                keys.append(m4a_frame_mapping[m4a_key])
             else:
-                keys.append(mp4_key)
+                keys.append(m4a_key)
         return keys

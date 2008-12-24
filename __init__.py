@@ -135,7 +135,7 @@ def dictionary_reverse(org_dict):
     return new_dict
 
 from tag_wrapper.mp3 import ID3Tag
-from tag_wrapper.mp4 import MP4Tag
+from tag_wrapper.m4a import M4ATag
 
 def tag(filename, lang='eng', encoding='utf-8'):
     """This function front-ends the various implementors of the Tag class.
@@ -149,6 +149,6 @@ def tag(filename, lang='eng', encoding='utf-8'):
     elif type(tag) == mutagen.mp3.MP3:
         return ID3Tag(tag, lang, encoding)
     elif type(tag) == mutagen.mp4.MP4:
-        return MP4Tag(tag)
+        return M4ATag(tag)
     else:
         return Tag(tag)

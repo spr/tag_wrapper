@@ -26,31 +26,37 @@ encodings = {
 }
 
 id3_frame_mapping = {
+        # Art
         'APIC:': 'album cover',
-        'TALB': 'album',
-        'TBPM': 'bpm',
-        'TCOM': 'composer',
-        'TCON': 'genre',
-        'TCOP': 'copyright',
-        'TDRC': 'date',
-        'TENC': 'encoder',
-        'TEXT': 'lyricist',
-        'TLEN': 'length',
+        # Main information
+        'TIT2': 'title',
         'TPE1': 'artist',
         'TPE2': 'album artist',
-        'TPE3': 'conductor',
-        'TPOS': 'discnumber',   # x/total
+        'TALB': 'album',
+        'TCOM': 'composer',
+        'TCON': 'genre',
+        'TDRC': 'date',
         'TRCK': 'tracknumber',  # x/total
-        'TSSE': 'encoder',
+        'TPOS': 'discnumber',   # x/total
+        'TBPM': 'bpm',
+        # iTunes bonus stuff
+        'TCMP': 'compilation',
+        # Gapless support via comments
         'TIT1': 'grouping',
-        'TIT2': 'title',
+        # Sorting
+        'TSOA': 'album sort order',
+        'TSOT': 'title sort order',
+        'TSOP': 'artist sort order',
+        # Miscellaneous
+        'TCOP': 'copyright',
+        'TPE3': 'conductor',
+        'TLEN': 'length',
+        'TEXT': 'lyricist',
+        'TENC': 'encoder',
+        'TSSE': 'encoder settings',
 }
 
 norm_frame_mapping = dictionary_reverse(id3_frame_mapping)
-
-def build_comm_key(key, lang='eng'):
-    """Builds key for a COMM tag as found in mutagen.id3.ID3"""
-    return unicode(''.join(('COMM:', key, ":'", lang, "'")))
 
 class ID3Tag(Tag):
     """The Tag implementation for ID3 tags"""
@@ -65,61 +71,71 @@ class ID3Tag(Tag):
         else:
             raise TagException('Encoding %s not supported by ID3' % encoding)
 
-    def _get_new_key(self, key):
+    def _build_comm_key(self, key, lang='eng'):
+        """Builds key for a COMM tag as found in mutagen.id3.ID3"""
+        return unicode(''.join(('COMM:', key, ":'", lang, "'")))
+
+    def _get_real_key(self, key):
         """This returns the key that mutagen.id3.ID3 uses given a "normal"
         value.
         """
-        # Note: some keys have an appended ':'. This is bad
         new_key = ''
         if key in norm_frame_mapping:
             new_key = norm_frame_mapping[key]
-        # description is synonymous with comment
-        elif key == 'comment' or key == 'description':
-            new_key = build_comm_key('', self.lang)
+        elif key == 'comment':
+            new_key = self._build_comm_key('', self.lang)
+        elif key == 'gapless':
+            new_key = self._build_comm_key('iTunPGAP', self.lang)
         else:
-            new_key = build_comm_key(key, self.lang)
+            new_key = self._build_comm_key(key, self.lang)
         return new_key
 
     def __getitem__(self, key):
         """ __getitem__: artist = tag['artist']
         Returns a list of values
         """
-        nkey = self._get_new_key(key)
+        rkey = self._get_real_key(key)
         if key == 'album cover':
-            return [self._tag[nkey].data]
-        id3_tag = self._tag[nkey].text
-        if type(id3_tag) != list:
-            id3_tag = [id3_tag]
-        return map(unicode, id3_tag)
+            return [self._tag[rkey].data]
+        value = self._tag[rkey].text
+        if type(value) != list:
+            value = [value]
+        return map(unicode, value)
 
     def __setitem__(self, key, value):
         """__setitem__: tag['artist'] = "Guster"
         If a tag supports multiple values, the user must put vales into
         a list themselves. If the tag already exists we overwrite the data.
+        Mutagen will make a list out of Null separated values.
         """
         # Tag is a supported frame
-        nkey = self._get_new_key(key)
+        if type(value) != list:
+            value = [value]
         if key in norm_frame_mapping:
-            tag_class = getattr(id3, nkey)
+            rkey = self._get_real_key(key)
+            tag_class = getattr(id3, rkey)
             if key == 'album cover':
-                self._tag[nkey] = tag_class(encoding=self.encoding, type=3,
-                        data=value)
+                self._tag[rkey] = tag_class(encoding=self.encoding, type=3,
+                        data=value[0])
             else:
-                self._tag[nkey] = tag_class(encoding=self.encoding, text=value)
+                self._tag[rkey] = [tag_class(encoding=self.encoding, text=v) 
+                        for v in value]
         # Tag is a comment
         else:
-            if key == 'comment' or key == 'description':
+            if key == 'comment':
                 desc = ''
+            elif key == 'gapless':
+                desc = 'iTunPGAP'
             else:
                 desc = key
-            self._tag[nkey] = id3.COMM(encoding=self.encoding, lang=self.lang,
-                        description=desc, text=value)
+            self._tag[rkey] = [id3.COMM(encoding=self.encoding, lang=self.lang,
+                        description=desc, text=v) for v in value]
 
     def __delitem__(self, key):
-        del(self._tag[self._get_new_key(key)])
+        del(self._tag[self._get_real_key(key)])
 
     def __contains__(self, item):
-        return (self._get_new_key(item) in self._tag)
+        return (self._get_real_key(item) in self._tag)
 
     def keys(self):
         keys = []
