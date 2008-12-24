@@ -14,7 +14,7 @@
 # along with tag_wrapper; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import mutagen
+import mutagen, os.path, os
 
 class Tag(object):
     """Abstract class for tag implementations. Provides the general basics
@@ -23,11 +23,31 @@ class Tag(object):
     """
     def __init__(self, tag):
         self._tag = tag
+        self.filename = tag.filename
+
+    def change_filename(self, new_name, force=False):
+        """Changes the file's name and location. Will not overwrite an existing
+        file unless force=True. Will remove all empty elements in original
+        path. To vacillate the change the current state of the tag must be
+        saved.
+        """
+        if os.path.exists(new_name) and not force:
+            return
+        self.save()
+        current_dir = os.path.dirname(new_path)
+        # OS X is silly
+        if '.DS_Store' in os.listdir(current_dir):
+            os.remove(os.join(current_dir, '.DS_Store'))
+        os.renames(self.filename, new_name)
+        self.filename = new_name
+        self._tag = mutagen.File(new_name)
+
 
     def save(self):
         """Saves tag out to disk."""
         self._tag.save()
 
+    # dict type methods
     def __getitem__(self, key):
         if type(self._tag[key]) != list:
             return [self._tag[key]]
