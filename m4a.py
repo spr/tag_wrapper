@@ -76,6 +76,8 @@ class M4ATag(Tag):
             return [u'/'.join(map(unicode, v)) for v in value]
         elif key == 'date':
             return map(self._get_year_from_date, value)
+        elif key == 'album cover':
+            return value
         if type(value) != list:
             value = [value]
         return map(unicode, value)
