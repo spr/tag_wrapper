@@ -141,7 +141,6 @@ class Tag(object):
             return self.pop(self.keys()[0])
         else:
             raise KeyError()
-    filename = property(lambda self: self._tag.filename)
 
 class TagException(Exception):
     """tag_wrapper general exception."""
