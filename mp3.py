@@ -127,10 +127,8 @@ class ID3Tag(Tag):
                 desc = ''
             elif key == 'gapless':
                 desc = 'iTunPGAP'
-            result = id3.COMM(encoding=self.encoding, lang=self.lang,
+            self._tag[rkey] = id3.COMM(encoding=self.encoding, lang=self.lang,
                         desc=desc, text=value)
-            print result.__repr__()
-            self._tag[rkey] = result
 
     def __delitem__(self, key):
         del(self._tag[self._get_real_key(key)])
