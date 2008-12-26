@@ -119,8 +119,7 @@ class ID3Tag(Tag):
                         type=3, data=value[0])
             else:
                 tag_class = getattr(id3, rkey)
-                self._tag[rkey] = [tag_class(encoding=self.encoding, text=v) 
-                        for v in value]
+                self._tag[rkey] = tag_class(encoding=self.encoding, text=value) 
         # Tag is a comment
         else:
             if key == 'comment':
@@ -129,8 +128,8 @@ class ID3Tag(Tag):
                 desc = 'iTunPGAP'
             else:
                 desc = key
-            self._tag[rkey] = [id3.COMM(encoding=self.encoding, lang=self.lang,
-                        description=desc, text=v) for v in value]
+            self._tag[rkey] = id3.COMM(encoding=self.encoding, lang=self.lang,
+                        description=desc, text=value)
 
     def __delitem__(self, key):
         del(self._tag[self._get_real_key(key)])
