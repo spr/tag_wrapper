@@ -122,14 +122,13 @@ class ID3Tag(Tag):
                 self._tag[rkey] = tag_class(encoding=self.encoding, text=value) 
         # Tag is a comment
         else:
+            desc = key
             if key == 'comment':
                 desc = ''
             elif key == 'gapless':
                 desc = 'iTunPGAP'
-            else:
-                desc = key
             self._tag[rkey] = id3.COMM(encoding=self.encoding, lang=self.lang,
-                        description=desc, text=value)
+                        desc=desc, text=value)
 
     def __delitem__(self, key):
         del(self._tag[self._get_real_key(key)])
