@@ -108,11 +108,11 @@ class ID3Tag(Tag):
         a list themselves. If the tag already exists we overwrite the data.
         Mutagen will make a list out of Null separated values.
         """
+        rkey = self._get_real_key(key)
         # Tag is a supported frame
         if type(value) != list:
             value = [value]
         if key in norm_frame_mapping:
-            rkey = self._get_real_key(key)
             if key == 'album cover':
                 tag_class = getattr(id3, rkey[:-1])
                 self._tag[rkey] = tag_class(encoding=self.encoding,
