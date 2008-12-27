@@ -115,8 +115,10 @@ class ID3Tag(Tag):
         if key in norm_frame_mapping:
             if key == 'album cover':
                 tag_class = getattr(id3, rkey[:-1])
-                self._tag[rkey] = tag_class(encoding=self.encoding,
+                result = tag_class(encoding=self.encoding,
                         type=3, data=value[0])
+                print result
+                self._tag[rkey] = result
             else:
                 tag_class = getattr(id3, rkey)
                 self._tag[rkey] = tag_class(encoding=self.encoding, text=value) 
@@ -145,6 +147,8 @@ class ID3Tag(Tag):
                 s = id3_key.split(':')[1]
                 if s == '':
                     keys.append('comment')
+                elif s == 'gapless':
+                    keys.append('gapless')
                 else:
                     keys.append(s)
         return keys
