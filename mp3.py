@@ -116,7 +116,7 @@ class ID3Tag(Tag):
             if key == 'album cover':
                 tag_class = getattr(id3, rkey[:-1])
                 self._tag[rkey] = tag_class(encoding=self.encoding,
-                        desc='', type=3, data=value[0])
+                        desc='', type=3, mime='image/png', data=value[0])
             else:
                 tag_class = getattr(id3, rkey)
                 self._tag[rkey] = tag_class(encoding=self.encoding, text=value) 
