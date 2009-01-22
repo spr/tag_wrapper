@@ -86,7 +86,15 @@ class M4ATag(Tag):
         if type(value) != list:
             value = [value]
         if key == 'tracknumber' or key == 'discnumber':
-            value = [v.split('/') for v in value]
+            value = [map(int, v.split('/')) for v in value]
+            # TODO: I hate this.
+            next = []
+            for v in value:
+                if len(v) == 1:
+                    next.append((v[0],0))
+                else:
+                    next.append(v)
+            value = next
         elif key == 'date':
             value = [self._make_date_from_year(v) for v in value]
         elif key == 'compilation' or key == 'gapless':
