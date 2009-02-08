@@ -65,7 +65,11 @@ class M4ATag(Tag):
         return "%s-01-01T07:00:00Z" % year
 
     def _get_year_from_date(self, date):
-        return re.match(r'(\d{4})-', date).group(1)
+        m = re.match(r'(\d{4})-', date)
+        if m:
+            return m.group(1)
+        else:
+            return date
     
     def __getitem__(self, key):
         """__getitem__: artist = tag['artist']
@@ -98,7 +102,7 @@ class M4ATag(Tag):
         elif key == 'date':
             value = [self._make_date_from_year(v) for v in value]
         elif key == 'compilation' or key == 'gapless':
-            value = [bool(v) for v in value]
+            value = bool(value[0])
         
         self._tag[self._get_real_key(key)] = value
 
