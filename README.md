@@ -16,3 +16,5 @@ on the fly to the correct field names.
 For a list of supported fields in m4a or mp3 files, please look at their respective files.
 
 For a usage example have a look at Oggify.
+
+GPL v2
