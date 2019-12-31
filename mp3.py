@@ -27,7 +27,7 @@ encodings = {
 
 id3_frame_mapping = {
         # Art
-        'APIC:': 'album cover',
+        'APIC:cover': 'album cover',
         # Main information
         'TIT2': 'title',
         'TPE1': 'artist',
@@ -73,7 +73,7 @@ class ID3Tag(Tag):
 
     def _build_comm_key(self, key, lang='eng'):
         """Builds key for a COMM tag as found in mutagen.id3.ID3"""
-        return unicode(''.join(('COMM:', key, ":'", lang, "'")))
+        return u''.join(('COMM:', key, ":", lang))
 
     def _get_real_key(self, key):
         """This returns the key that mutagen.id3.ID3 uses given a "normal"
@@ -94,13 +94,14 @@ class ID3Tag(Tag):
         """ __getitem__: artist = tag['artist']
         Returns a list of values
         """
+        print(f'> Get item {key}')
         rkey = self._get_real_key(key)
         if key == 'album cover':
             return [self._tag[rkey].data]
         value = self._tag[rkey].text
         if type(value) != list:
             value = [value]
-        return map(unicode, value)
+        return [str(v) for v in value]
 
     def __setitem__(self, key, value):
         """__setitem__: tag['artist'] = "Guster"

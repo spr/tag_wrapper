@@ -77,21 +77,23 @@ class M4ATag(Tag):
         """
         value = self._tag[self._get_real_key(key)]
         if key == 'tracknumber' or key == 'discnumber':
-            return [u'/'.join(map(unicode, v)) for v in value]
+            return [u'/'.join([str(inner) for inner in v]) for v in value]
         elif key == 'date':
-            return map(self._get_year_from_date, value)
+            return [self._get_year_from_date(v) for v in value]
         elif key == 'album cover':
             return value
+        if type(value) == bool:
+            value = str(value)
         if type(value) != list:
             value = [value]
-        return map(unicode, value)
+        return value
 
     def __setitem__(self, key, value):
         if type(value) != list:
             value = [value]
         if key == 'tracknumber' or key == 'discnumber':
-            value = [map(int, v.split('/')) for v in value]
-            # TODO: I hate this.
+            value = [[int(inner) for inner in v.split('/')] for v in value]
+            # TODO: awkward!
             next = []
             for v in value:
                 if len(v) == 1:
